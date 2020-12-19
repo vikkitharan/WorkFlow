@@ -2,9 +2,16 @@
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 # Bash script to simulate the git work flow
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-tmp_dir=$(mktemp -d -t $(date +%Y_%m_%d_%H_%M_%S)_XXXXXXXXXX)
+member1=$(mktemp -d)
+origin_dir=$(mktemp -d)
 
-cd $tmp_dir
+cd $origin_dir
+git init --bare
+
+echo $origin_dir
+cd -
+
+cd $member1
 # initialize git
 git init
 # create an empty README file
@@ -17,7 +24,12 @@ git commit -m "Add initial files"
 #tag current version
 git tag -a 0.0.0 -m "Initial README file"
 
-#create develop branch
+git remote add origin $origin_dir
+
+git remote -v
+
+
+create develop branch
 git checkout -b develop master
 
 
@@ -39,7 +51,7 @@ git add hooks/precommit.sh
 git commit -m "Add pre-commit hook"
 
 git checkout develop
-git merge write_templates --no-ff -m "merge write_templates into develop"
+git merge write_templates --no-ff -m "Merge branch 'write_templates' into develop"
 
 git branch write_templates -d
 
@@ -63,12 +75,17 @@ git commit -m "Update version to 1.0.0"
 
 git checkout master
 #
-git merge --no-ff release_0.0.0 -m "merge release_0.0.0 into master"
+git merge --no-ff release_0.0.0 -m "Merge branch 'release_0.0.0. into master"
 git tag -a 0.2.0 -m "Templates are ready"
 
 
+git push origin master
+git push origin --tags
+
+
 git checkout develop
-git merge --no-ff release_0.0.0 -m "merge release_0.0.0 into develop"
+git merge --no-ff release_0.0.0 -m "Merge branch 'release_0.0.0' into develop"
+git push origin develop
 
 git branch release_0.0.0 -d
 
@@ -84,11 +101,14 @@ git add version.txt
 git commit -m "Update version to 1.0.1"
 
 git checkout master
-git merge --no-ff hot_fix_1.0.0 -m "merge hot_fix_1.0.0 into master"
+git merge --no-ff hot_fix_1.0.0 -m "Merge branch 'hot_fix_1.0.0' into master"
 git tag -a 1.0.1 -m "Fix typo"
+git push origin master
+git push origin --tags
 
 git checkout develop
-git merge --no-ff hot_fix_1.0.0 -m "merge hot_fix_1.0.0 into develop"
+git merge --no-ff hot_fix_1.0.0 -m "Merge branch 'hot_fix_1.0.0' into develop"
+git push origin develop
 
 
 git branch hot_fix_1.0.0 -d
@@ -100,7 +120,7 @@ git rebase develop
 
 git checkout develop
 
-git merge write_hooks --no-ff -m "merge write_hooks into master"
+git merge write_hooks --no-ff -m "Merge branch 'write_hooks' into develop"
 
 git branch write_hooks -d
 
@@ -115,16 +135,20 @@ git commit -m "Update version to 1.1.1"
 
 git checkout master
 #
-git merge --no-ff release_1.0.1 -m "merge release_1.0.1 into master"
+git merge --no-ff release_1.0.1 -m "Merge branch 'release_1.0.1' into master"
 git tag -a 1.1.1 -m "Hooks are ready"
 
+git push origin master
+git push origin --tags
 
 git checkout develop
-git merge --no-ff release_1.0.1 -m "merge release_1.0.1 into develop"
+git merge --no-ff release_1.0.1  -m "Merge branch 'release_1.0.1' into develop"
 
 git branch release_1.0.1 -d
+git push origin develop
 
 
 gitk  --all
 cd -
-rm $tmp_dir -rf
+rm $member1 -rf
+rm $origin_dir -rf
