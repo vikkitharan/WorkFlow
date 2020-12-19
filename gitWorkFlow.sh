@@ -1,80 +1,130 @@
 #!/bin/bash
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-#         File: gitWorkFlow.sh
-#               Bash script to simulate the git work flow
-#   Created by: vikgna
-#   Created on: 2020/01/16
-#  Modified by: vikgna
-#  Modified on: 2020/01/16
-#      Version: 1.0
+# Bash script to simulate the git work flow
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+tmp_dir=$(mktemp -d -t $(date +%Y_%m_%d_%H_%M_%S)_XXXXXXXXXX)
 
-#git init
-
-echo "#############################" > file.txt
-echo "# Version: 1.0" >> file.txt
-echo "#############################" >> file.txt
-echo "This is a sample file." >> file.txt
-
+cd $tmp_dir
+# initialize git
 git init
-git add file.txt
-git commit -m "Add file.txt"
-git tag -a 1.0 -m "Tag 1.0"
+# create an empty README file
+touch README.md
+# create the version file with
+echo "0.0.0" > version.txt
+git add README.md version.txt
+#commit
+git commit -m "Add initial files"
+#tag current version
+git tag -a 0.0.0 -m "Initial README file"
 
+#create develop branch
 git checkout -b develop master
 
-echo "A new line is added." >> file.txt
-git add -u
-git commit -m "Add a line"
 
-git checkout -b edit develop
-sed -i 's/sample file/simple text file/g' file.txt
-git add -u
-git commit -m "Edit a line"
+#Add todo list in README.md
+echo "TODOs 1. Make templaets 2. Make hooks" >> README.md
+git add README.md
+git commit -m "Add TODOs to README.md"
+
+git checkout -b write_templates develop
+mkdir templates
+echo "commit message">  templates/commit.txt
+git add templates/commit.txt
+git commit -m "Add commit templates"
+
+git checkout -b write_hooks develop
+mkdir hooks
+touch hooks/precommit.sh
+git add hooks/precommit.sh
+git commit -m "Add pre-commit hook"
 
 git checkout develop
+git merge write_templates --no-ff -m "merge write_templates into develop"
 
-echo "Hey time to relaese." >> file.txt
-git add -u
-git commit -m "Add another line"
+git branch write_templates -d
 
-git checkout -b release_2.0 develop
-sed -i 's/Version: 1.0/Version: 2.0/g' file.txt
-git add -u
-git commit -m "Update version to 2.0"
+git checkout write_hooks
+git rebase develop
+
+touch hooks/postcommit.sh
+git add hooks/postcommit.sh
+git commit -m "Add post-commit hook"
+
+
+
+git checkout -b release_0.0.0 develop
+# TEST release_0.2.0 branch
+
+echo "1.0.0" > version.txt
+git add version.txt
+git commit -m "Update version to 1.0.0"
+#
+
 
 git checkout master
+#
+git merge --no-ff release_0.0.0 -m "merge release_0.0.0 into master"
+git tag -a 0.2.0 -m "Templates are ready"
 
-git merge --no-ff release_2.0
-git tag -a 2.0 -m "Tag 2.0"
 
 git checkout develop
+git merge --no-ff release_0.0.0 -m "merge release_0.0.0 into develop"
 
-git merge --no-ff release_2.0
-git branch -d release_2.0
+git branch release_0.0.0 -d
 
-git merge --no-ff edit
-git branch -d edit
+git checkout -b hot_fix_1.0.0 master
 
-#git push origin develop
+sed -i 's/templaets/templates/g' README.md
 
-git checkout -b hotfix_2.0.1 master
+git add README.md
+git commit -m "Fix: correct typo"
 
-sed -i 's/Version: 2.0/Version: 2.0.1/g' file.txt
-git add -u
-git commit -m "Update version to 2.0.1"
-
-sed -i 's/relaese/release/g' file.txt
-git add -u
-git commit -m "Fix the spelling error"
+echo "1.0.1" > version.txt
+git add version.txt
+git commit -m "Update version to 1.0.1"
 
 git checkout master
+git merge --no-ff hot_fix_1.0.0 -m "merge hot_fix_1.0.0 into master"
+git tag -a 1.0.1 -m "Fix typo"
 
-git merge --no-ff hotfix_2.0.1
-git tag -a 0.1.1 -m "Tag 2.0.1"
+git checkout develop
+git merge --no-ff hot_fix_1.0.0 -m "merge hot_fix_1.0.0 into develop"
+
+
+git branch hot_fix_1.0.0 -d
+
+
+git checkout write_hooks
+git rebase develop
+
 
 git checkout develop
 
-git merge --no-ff hotfix_2.0.1
+git merge write_hooks --no-ff -m "merge write_hooks into master"
 
-git branch -d hotfix_2.0.1 
+git branch write_hooks -d
+
+git checkout -b release_1.0.1 develop
+# TEST release_1.0.1 branch
+
+echo "1.1.1" > version.txt
+git add version.txt
+git commit -m "Update version to 1.1.1"
+#
+
+
+git checkout master
+#
+git merge --no-ff release_1.0.1 -m "merge release_1.0.1 into master"
+git tag -a 1.1.1 -m "Hooks are ready"
+
+
+git checkout develop
+git merge --no-ff release_1.0.1 -m "merge release_1.0.1 into develop"
+
+git branch release_1.0.1 -d
+
+
+gitk  --all
+cd -
+rm $tmp_dir -rf
