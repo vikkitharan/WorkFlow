@@ -1,6 +1,7 @@
 #!/bin/bash
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-# Bash script to simulate the git work flow
+# This is the 1st developer's 1st script,
+# It makes first commit and push to remote repo
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 dir=/tmp/dev1
 mkdir $dir
@@ -38,6 +39,5 @@ git commit -m "Add TODOs to README.md"
 
 # step #: push
 git remote add origin "/tmp/gitworkFlow"
-git push origin master
-git push origin develop
+git push --all
 git push origin --tags
