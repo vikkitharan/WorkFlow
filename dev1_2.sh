@@ -86,4 +86,4 @@ git push --all
 git push origin --tags
 
 
-gitk  --all
+gitk  --all &
