@@ -78,4 +78,4 @@ git branch release_1.0.0 -d
 git push --all
 git push origin --tags
 
-gitk  --all
+gitk  --all &
